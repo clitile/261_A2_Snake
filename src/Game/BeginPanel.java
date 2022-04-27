@@ -17,7 +17,7 @@ public class BeginPanel extends JPanel {
         super.paintComponent(g);
         g.setColor(Color.BLUE);
         g.setFont(new Font("San-Serif",Font.BOLD,40));
-        g.drawString("Element.Snake", 90, 40);
+        g.drawString("Snake", 90, 40);
 
         JButton single_mode = new JButton("Single Mode");
         single_mode.setLocation(75, 70);
@@ -41,6 +41,12 @@ public class BeginPanel extends JPanel {
             JOptionPane.showMessageDialog(null, instructions, "Instructions", JOptionPane.PLAIN_MESSAGE);
         });
         this.add(help);
+
+        JButton quit = new JButton("Quit");
+        quit.setLocation(75, 310);
+        quit.setSize(150, 50);
+        quit.addActionListener(e -> System.exit(0));
+        this.add(quit);
     }
 
     public PlayerNum getPlayNum() {

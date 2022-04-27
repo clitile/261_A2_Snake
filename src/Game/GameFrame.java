@@ -10,7 +10,7 @@ public class GameFrame extends JFrame{
         PlayerNum num;
         this.setTitle("Element.Snake");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setSize(300, 350);
+        this.setSize(300, 420);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
 
