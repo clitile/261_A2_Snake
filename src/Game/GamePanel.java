@@ -9,12 +9,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class GamePanel extends JPanel  implements KeyListener, ActionListener {
     private final String HEAD_PATH = "image/head.png";
     private final String BODY_PATH = "image/dot.png";
     private final String FOOD_PATH = "image/apple.png";
+
+    private final String DRUG_PATH = "image/drug.png";
     private final PlayerNum mode;
 
     Random r = new Random();
@@ -23,6 +26,8 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
     private Player p2;
     private Food food1;
     private Food food2;
+
+    private Food drug;
 
     Timer timer = new Timer(100, this);
     boolean isStart;
@@ -47,11 +52,16 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
         bodies.get(0).setLocation(90, 100);
         bodies.get(1).setLocation(80, 100);
         p1.setDirection(Direction.RIGHT);
+
         if (mode == PlayerNum.One) {
             p1.setScore(0);
             int[] pos = setFoodPos(p1);
             food1 = new Food(FOOD_PATH);
             food1.setLocation(pos[0], pos[1]);
+
+            pos = setDrugPos(p1, food1);
+            drug = new Food(DRUG_PATH);
+            drug.setLocation(pos[0], pos[1]);
         } else {
             p2 = new Player(BODY_PATH, HEAD_PATH);
             p2.setSnakeHeadX(600);
@@ -67,6 +77,10 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
             int[] pos = setFoodPos();
             food1.setLocation(pos[0], pos[1]);
             food2.setLocation(pos[2], pos[3]);
+
+            int[] p = setDrugPos();
+            drug = new Food(DRUG_PATH);
+            drug.setLocation(p[0], p[1]);
         }
     }
 
@@ -75,12 +89,13 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
         super.paintComponent(g);
         g.setColor(Color.BLUE);
         g.setFont(new Font("San-Serif",Font.BOLD,60));
-        g.drawString("Element.Snake",100,60);
+        g.drawString("Snake",100,60);
         g.setColor(Color.black);
         g.fillRect(20,70,850,600);
 
         drawSnake(g);
         drawFood(g);
+        drawDrug(g);
 
         g.setColor(Color.BLACK);
         g.setFont(new Font("San-Serif", Font.BOLD, 20));
@@ -103,6 +118,43 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
             g.setFont(new Font("San-Serif",Font.BOLD,30));
             g.drawString("Game Over，Press the space bar to start the game",80,300);
         }
+    }
+
+    private int[] setDrugPos(Player player, Food food) {
+        int[] pos;
+        boolean f = false;
+        while (true) {
+            pos = setFoodPos(player);
+            if (pos[0] == food.getX() && pos[1] == food.getY()) {
+                pos = setFoodPos(player);
+                f = true;
+            }
+            if (!f) {
+                break;
+            }
+            f = false;
+        }
+        return pos;
+    }
+
+    private int[] setDrugPos() {
+        int[] pos;
+        boolean f = false;
+        while (true) {
+            pos = setFoodPos(food1, p1, p2);
+            System.out.println(food1.getX());
+            System.out.println(Arrays.toString(pos));
+            if (pos[0] == food2.getX() && pos[1] == food2.getY()) {
+                pos = setFoodPos(food2, p1, p2);
+                f = true;
+            }
+            if (!f) {
+                break;
+            }
+            f = false;
+        }
+        System.out.println(Arrays.toString(pos));
+        return pos;
     }
 
     private int[] setFoodPos(Player player) {
@@ -156,7 +208,7 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
                         break;
                     }
                 } else {
-                    if(player1.getSnakeBody().get(a - 1).getX() == x && player1.getSnakeBody().get(a - 1).getY() == y || player2.getSnakeBody().get(b - 1).getX() == x && player2.getSnakeBody().get(b - 1).getY() == y || food.getX() == x && food.getY() == y){
+                    if(player1.getSnakeBody().get(a - 1).getX() == x && player1.getSnakeBody().get(a - 1).getY() == y || player2.getSnakeBody().get(b - 1).getX() == x && player2.getSnakeBody().get(b - 1).getY() == y || food.getX() == x && food.getY() == y) {
                         x = 20 + 10 * r.nextInt(85);
                         y = 70 + 10 * r.nextInt(60);
                         f = true;
@@ -169,6 +221,9 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
             }
             f = false;
         }
+
+        pos[0] = x;
+        pos[1] = y;
         return pos;
     }
 
@@ -230,6 +285,17 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
             pos[3] = y;
         }
         return pos;
+    }
+
+    private void drawDrug(Graphics g) {
+        g.drawImage(
+                drug.getImage(),
+                drug.getX(),
+                drug.getY(),
+                drug.getWidth(),
+                drug.getHeight(),
+                this
+        );
     }
 
     private void drawFood(Graphics g) {
@@ -315,6 +381,16 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
                 p1.getSnakeBody().add(eatFood(p1, BODY_PATH));
             }
 
+            if (haveEatenDrug(p1)) {
+                if (p1.getScore() <= 0) {
+                    isFail = true;
+                } else {
+                    p1.setScore(p1.getScore() - 10);
+                    int[] pos = setDrugPos(p1, food1);
+                    drug.setLocation(pos[0], pos[1]);
+                }
+            }
+
             for (int i = 0; i < p1.getSnakeBody().size(); i++) {
                 if (p1.getSnakeHeadX() == p1.getSnakeBody().get(i).getX() && p1.getSnakeHeadY() == p1.getSnakeBody().get(i).getY()) {
                     isFail = true;
@@ -327,25 +403,35 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
                 head = moveHead(p2);
                 p2.setSnake(head, bodies);
 
-                if (p2.getSnakeHeadX() == food1.getX() && p2.getSnakeHeadY() == food1.getY()) {
+                if (haveEatenFood(p2, food1)) {
                     p2.setScore(p2.getScore() + 10);
                     int[] pos = setFoodPos(food1, p1, p2);
                     food1.setLocation(pos[0], pos[1]);
                     p2.getSnakeBody().add(eatFood(p2, HEAD_PATH));
                 }
 
-                if (p2.getSnakeHeadX() == food2.getX() && p2.getSnakeHeadY() == food2.getY()) {
+                if (haveEatenFood(p2, food2)) {
                     p2.setScore(p2.getScore() + 10);
                     int[] pos = setFoodPos(food1, p1, p2);
                     food1.setLocation(pos[0], pos[1]);
                     p2.getSnakeBody().add(eatFood(p2, HEAD_PATH));
                 }
 
-                if (p1.getSnakeHeadX() == food2.getX() && p1.getSnakeHeadY() == food2.getY()) {
+                if (haveEatenFood(p1, food2)) {
                     p1.setScore(p1.getScore() + 10);
                     int[] pos = setFoodPos(food1, p1, p2);
                     food2.setLocation(pos[0], pos[1]);
                     p1.getSnakeBody().add(eatFood(p1, BODY_PATH));
+                }
+
+                if (haveEatenDrug(p2)) {
+                    if (p2.getScore() <= 0) {
+                        isFail = true;
+                    } else {
+                        p2.setScore(p2.getScore() - 10);
+                        int[] pos = setDrugPos();
+                        drug.setLocation(pos[0], pos[1]);
+                    }
                 }
 
                 for (int i = 0; i < p2.getSnakeBody().size(); i++) {
@@ -362,6 +448,10 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
 
     private boolean haveEatenFood(Player player, Food food) {
         return player.getSnakeHeadX() == food.getX() && player.getSnakeHeadY() == food.getY();
+    }
+
+    private boolean haveEatenDrug(Player player) {
+        return player.getSnakeHeadX() == drug.getX() && player.getSnakeHeadY() == drug.getY();
     }
 
     @Override

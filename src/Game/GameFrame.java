@@ -8,7 +8,7 @@ import java.awt.*;
 public class GameFrame extends JFrame{
     public GameFrame() throws HeadlessException, InterruptedException {
         PlayerNum num;
-        this.setTitle("Element.Snake");
+        this.setTitle("Snake");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(300, 420);
         this.setLocationRelativeTo(null);
