@@ -380,7 +380,7 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
             }
 
             if (haveEatenDrug(p1)) {
-                if (p1.getScore() <= 0) {
+                if (p1.getScore() < 0) {
                     isFail = true;
                 } else {
                     p1.setScore(p1.getScore() - 10);
@@ -423,7 +423,7 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
                 }
 
                 if (haveEatenDrug(p2)) {
-                    if (p2.getScore() <= 0) {
+                    if (p2.getScore() < 0) {
                         isFail = true;
                     } else {
                         p2.setScore(p2.getScore() - 10);
