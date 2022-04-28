@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class GamePanel extends JPanel  implements KeyListener, ActionListener {
+    boolean change = false;
+
     private final String HEAD_PATH = "image/head.png";
     private final String BODY_PATH = "image/dot.png";
     private final String FOOD_PATH = "image/apple.png";
@@ -142,8 +144,6 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
         boolean f = false;
         while (true) {
             pos = setFoodPos(food1, p1, p2);
-            System.out.println(food1.getX());
-            System.out.println(Arrays.toString(pos));
             if (pos[0] == food2.getX() && pos[1] == food2.getY()) {
                 pos = setFoodPos(food2, p1, p2);
                 f = true;
@@ -153,7 +153,6 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
             }
             f = false;
         }
-        System.out.println(Arrays.toString(pos));
         return pos;
     }
 
@@ -501,6 +500,8 @@ public class GamePanel extends JPanel  implements KeyListener, ActionListener {
             repaint();
         } else if (keyCode == KeyEvent.VK_Q) {
             System.exit(0);
+        } else if (keyCode == KeyEvent.VK_ESCAPE) {
+            change = true;
         }
 
         p1.setDirection(CheckDirection(p1.getDirection(), keyCode, u1D));
